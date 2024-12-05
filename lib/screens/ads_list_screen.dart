@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:petconnectflutter/screens/create_ad_screen.dart';
 
 class AdsListScreen extends StatelessWidget {
   @override
@@ -7,6 +8,17 @@ class AdsListScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('İlanlar'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.add_box, size: 30),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => CreateAdScreen()),
+              );
+            },
+          ),
+        ],
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance

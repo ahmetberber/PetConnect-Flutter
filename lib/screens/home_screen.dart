@@ -30,17 +30,6 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('PetConnect'),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.notifications),
-            onPressed: () {
-              // Bildirim sayfasına yönlendirme yapılabilir
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Bildirimler özelliği yakında!')),
-              );
-            },
-          ),
-        ],
       ),
       body: _widgetOptions[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
@@ -62,16 +51,6 @@ class _HomeScreenState extends State<HomeScreen> {
         selectedItemColor: Colors.blue,
         onTap: _onItemTapped,
       ),
-      // floatingActionButton: FloatingActionButton(
-      //   onPressed: () {
-      //     Navigator.push(
-      //       context,
-      //       MaterialPageRoute(builder: (context) => CreateAdScreen()),
-      //     );
-      //   },
-      //   child: Icon(Icons.add),
-      //   tooltip: 'Yeni İlan Oluştur',
-      // ),
     );
   }
 }

@@ -8,7 +8,7 @@ class MapAdsScreen extends StatefulWidget {
 }
 
 class _MapAdsScreenState extends State<MapAdsScreen> {
-  final Set<Marker> _markers = {}; // Harita üzerindeki marker seti
+  final Set<Marker> _markers = {};
   late GoogleMapController _mapController;
 
   @override
@@ -42,7 +42,7 @@ class _MapAdsScreenState extends State<MapAdsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Haritada İlanlar'),
+        title: Text('Harita'),
       ),
       body: GoogleMap(
         initialCameraPosition: const CameraPosition(

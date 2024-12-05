@@ -33,9 +33,10 @@ class _LoginScreenState extends State<LoginScreen> {
       );
 
       // Giriş başarılı, ana sayfaya yönlendirme
-      Navigator.pushReplacement(
+      Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (context) => HomeScreen()),
+        (route) => false,
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
