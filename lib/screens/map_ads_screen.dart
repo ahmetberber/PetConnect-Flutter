@@ -3,6 +3,8 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class MapAdsScreen extends StatefulWidget {
+  const MapAdsScreen({super.key});
+
   @override
   _MapAdsScreenState createState() => _MapAdsScreenState();
 }

@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'ads_list_screen.dart';
 import 'map_ads_screen.dart';
 import 'profile_screen.dart';
-import 'create_ad_screen.dart';
 
 class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
@@ -12,11 +13,10 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
 
-  // Alt sekmelerde gösterilecek ekranlar
   static final List<Widget> _widgetOptions = <Widget>[
-    AdsListScreen(), // İlanlar Listesi
-    MapAdsScreen(),  // Haritada İlanlar
-    ProfileScreen(), // Kullanıcı Profili
+    AdsListScreen(),
+    MapAdsScreen(),
+    ProfileScreen(),
   ];
 
   void _onItemTapped(int index) {

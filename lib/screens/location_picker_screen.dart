@@ -7,6 +7,8 @@ import 'package:google_maps_webservice/places.dart';
 const String googleApiKey = "AIzaSyCaCnDZHu-PCM2_UP0J4jodoocMf5mQwoc"; // Google Maps API Key'inizi buraya ekleyin.
 
 class LocationPickerScreen extends StatefulWidget {
+  const LocationPickerScreen({super.key});
+
   @override
   _LocationPickerScreenState createState() => _LocationPickerScreenState();
 }

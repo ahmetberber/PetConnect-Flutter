@@ -6,13 +6,15 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:petconnectflutter/screens/location_picker_screen.dart';
 
 class CreateAdScreen extends StatefulWidget {
+  const CreateAdScreen({super.key});
+
   @override
   _CreateAdScreenState createState() => _CreateAdScreenState();
 }
 
 class _CreateAdScreenState extends State<CreateAdScreen> {
-  TextEditingController _titleController = TextEditingController();
-  TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
   LatLng? _selectedLocation;
 
   @override

@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:intl/intl.dart';
 import 'package:petconnectflutter/screens/ad_details_screen.dart';
 import 'package:petconnectflutter/screens/create_ad_screen.dart';
 
 class AdsListScreen extends StatelessWidget {
+  const AdsListScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -52,20 +55,17 @@ class AdsListScreen extends StatelessWidget {
                 child: ListTile(
                   title: Text(ad['title'] ?? 'Başlık Yok'),
                   subtitle: Text(ad['description'] ?? 'Açıklama Yok'),
-                  trailing: Text(
-                    ad['createdAt'] != null
-                        ? (ad['createdAt'] as Timestamp).toDate().toString()
-                        : '',
-                  ),
+                  trailing: Text(ad['createdAt'] != null ? DateFormat('dd/MM/yyyy HH:mm').format((ad['createdAt'] as Timestamp).toDate()) : ''),
                   onTap: () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => AdDetailsScreen(
+                          adId: ads[index].id,
                           title: ad["title"],
                           description: ad["description"],
                           location: LatLng(ad["location"]["latitude"], ad["location"]["longitude"]),
-                          createdAt: (ad["createdAt"] as Timestamp).toDate(),
+                          createdAt: DateFormat('dd/MM/yyyy HH:mm').format((ad['createdAt'] as Timestamp).toDate()),
                         ),
                       ),
                     );
