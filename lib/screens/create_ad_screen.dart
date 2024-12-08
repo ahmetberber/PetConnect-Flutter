@@ -16,6 +16,7 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   LatLng? _selectedLocation;
+  String _selectedCategory = "Kayıp";
 
   @override
   Widget build(BuildContext context) {
@@ -34,6 +35,23 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            DropdownButton<String>(
+              value: _selectedCategory,
+              items: [
+                "Kayıp",
+                "Sahiplendirme",
+              ].map((category) {
+                return DropdownMenuItem<String>(
+                  value: category,
+                  child: Text(category),
+                );
+              }).toList(),
+              onChanged: (value) {
+                setState(() {
+                  _selectedCategory = value!;
+                });
+              },
+            ),
             TextField(
               controller: _titleController,
               decoration: InputDecoration(labelText: "Başlık"),
@@ -122,17 +140,6 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
       return;
     }
 
-    // if (_currentPosition == null) {
-    //   ScaffoldMessenger.of(context).showSnackBar(
-    //     SnackBar(content: Text('Konum alınamadı')),
-    //   );
-    //   return;
-    // }
-
-    // setState(() {
-    //   _isLoading = true;
-    // });
-
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       await FirebaseFirestore.instance.collection('ads').add({
@@ -142,8 +149,10 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
           'latitude': _selectedLocation!.latitude,
           'longitude': _selectedLocation!.longitude,
         },
+        'category': _selectedCategory,
         'createdBy': user.uid,
         'createdAt': Timestamp.now(),
+        'userId': user.uid,
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -151,9 +160,5 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
       );
       Navigator.pop(context);
     }
-
-    // setState(() {
-    //   _isLoading = false;
-    // });
   }
 }
