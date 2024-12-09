@@ -4,10 +4,12 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:google_maps_webservice/places.dart';
 
-const String googleApiKey = "AIzaSyCaCnDZHu-PCM2_UP0J4jodoocMf5mQwoc"; // Google Maps API Key'inizi buraya ekleyin.
+const String googleApiKey = "AIzaSyCaCnDZHu-PCM2_UP0J4jodoocMf5mQwoc";
 
 class LocationPickerScreen extends StatefulWidget {
-  const LocationPickerScreen({super.key});
+  final LatLng? initialLocation;
+
+  const LocationPickerScreen({super.key, this.initialLocation});
 
   @override
   _LocationPickerScreenState createState() => _LocationPickerScreenState();
@@ -20,8 +22,13 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
 
   @override
   void initState() {
-    _getCurrentLocation();
     super.initState();
+    if (widget.initialLocation != null) {
+      _initialLocation = widget.initialLocation;
+      _pickedLocation = widget.initialLocation;
+    } else {
+      _getCurrentLocation();
+    }
   }
 
   Future<void> _getCurrentLocation() async {
@@ -86,10 +93,6 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
     _mapController?.animateCamera(
       CameraUpdate.newLatLng(newPosition),
     );
-
-    setState(() {
-      _pickedLocation = newPosition;
-    });
   }
 
   @override
@@ -100,7 +103,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
         actions: [
           IconButton(
             icon: Icon(Icons.search),
-            onPressed: _searchPlace, // Arama ikonuna basınca arama yapılır.
+            onPressed: _searchPlace,
           ),
         ],
       ),
@@ -110,7 +113,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                 GoogleMap(
                   initialCameraPosition: CameraPosition(
                     target: _initialLocation!,
-                    zoom: 15,
+                    zoom: 11,
                   ),
                   onMapCreated: (controller) => _mapController = controller,
                   onTap: (LatLng location) {
@@ -119,7 +122,6 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                     });
                   },
                   myLocationButtonEnabled: true,
-                  zoomControlsEnabled: false,
                   markers: _pickedLocation != null
                       ? {
                           Marker(

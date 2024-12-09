@@ -150,7 +150,7 @@ class _EditAdScreenState extends State<EditAdScreen> {
                 LatLng? newLocation = await Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => LocationPickerScreen(),
+                    builder: (context) => LocationPickerScreen(initialLocation: _selectedLocation),
                   ),
                 );
                 if (newLocation != null) {
