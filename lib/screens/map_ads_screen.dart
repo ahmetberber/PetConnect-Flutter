@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_google_places/flutter_google_places.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_maps_webservice/places.dart';
@@ -14,6 +15,7 @@ class MapAdsScreen extends StatefulWidget {
 }
 
 class _MapAdsScreenState extends State<MapAdsScreen> {
+  LatLng? _initialLocation;
   final Set<Marker> _markers = {};
   late GoogleMapController? _mapController;
   bool _isLoading = true;
@@ -22,6 +24,39 @@ class _MapAdsScreenState extends State<MapAdsScreen> {
   void initState() {
     super.initState();
     _loadMarkers();
+    _getCurrentLocation();
+  }
+
+  Future<void> _getCurrentLocation() async {
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Lütfen konum servisini etkinleştirin.")),
+      );
+      return;
+    }
+
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Konum izni reddedildi.")),
+        );
+        return;
+      }
+    }
+
+    Position position = await Geolocator.getCurrentPosition(
+      locationSettings: LocationSettings(
+        accuracy: LocationAccuracy.high,
+        distanceFilter: 10,
+      ),
+    );
+
+    setState(() {
+      _initialLocation = LatLng(position.latitude, position.longitude);
+    });
   }
 
   void _loadMarkers() async {
@@ -92,22 +127,24 @@ class _MapAdsScreenState extends State<MapAdsScreen> {
           ),
         ],
       ),
-      body: Stack(
-        children: [
-          GoogleMap(
-            initialCameraPosition: const CameraPosition(
-              target: LatLng(41.0122, 28.976),
-              zoom: 11,
-            ),
-            markers: _markers,
-            onMapCreated: (controller) => _mapController = controller,
-          ),
-          if (_isLoading)
-            Center(
-              child: CircularProgressIndicator(),
-            ),
-        ],
-      ),
+      body: _initialLocation != null
+        ? Stack(
+            children: [
+              GoogleMap(
+                initialCameraPosition: CameraPosition(
+                  target: _initialLocation!,
+                  zoom: 14,
+                ),
+                markers: _markers,
+                onMapCreated: (controller) => _mapController = controller,
+              ),
+              if (_isLoading)
+                Center(
+                  child: CircularProgressIndicator(),
+                ),
+            ],
+          )
+        : Center(child: CircularProgressIndicator()),
     );
   }
 }

@@ -138,8 +138,10 @@ class _AdDetailsScreenState extends State<AdDetailsScreen> {
               child: GoogleMap(
                 initialCameraPosition: CameraPosition(
                   target: widget.location,
-                  zoom: 14,
+                  zoom: 15,
                 ),
+                //do not allow interaction with the map or camera
+                scrollGesturesEnabled: false,
                 markers: {
                   Marker(
                     markerId: MarkerId("ad-location"),

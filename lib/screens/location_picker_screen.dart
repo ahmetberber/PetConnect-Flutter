@@ -113,7 +113,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                 GoogleMap(
                   initialCameraPosition: CameraPosition(
                     target: _initialLocation!,
-                    zoom: 11,
+                    zoom: 14,
                   ),
                   onMapCreated: (controller) => _mapController = controller,
                   onTap: (LatLng location) {
@@ -144,9 +144,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                 ),
               ],
             )
-          : Center(
-              child: CircularProgressIndicator(),
-            ),
+          : Center(child: CircularProgressIndicator()),
     );
   }
 }
