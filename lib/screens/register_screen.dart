@@ -140,10 +140,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 : ElevatedButton(
                     onPressed: _register,
                     style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(vertical: 16),
+                      padding: EdgeInsets.all(16),
+                      backgroundColor: Colors.blueAccent,
+                      foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
+                      elevation: 5,
+                      shadowColor: Colors.blueAccent.withOpacity(0.5),
                     ),
                     child: Text(
                       'Kayıt Ol',

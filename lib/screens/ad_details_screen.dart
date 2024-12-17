@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 
 class AdDetailsScreen extends StatefulWidget {
   final String adId;
@@ -30,12 +31,14 @@ class AdDetailsScreen extends StatefulWidget {
 class _AdDetailsScreenState extends State<AdDetailsScreen> {
   bool _isFavorite = false;
   Map<String, dynamic>? _ownerData;
+  List<String> _imageUrls = [];
 
   @override
   void initState() {
     super.initState();
     _checkIfFavorite();
     _fetchOwnerData();
+    _fetchAdImages();
   }
 
   Future<void> _checkIfFavorite() async {
@@ -61,6 +64,16 @@ class _AdDetailsScreenState extends State<AdDetailsScreen> {
     if (doc.exists) {
       setState(() {
         _ownerData = doc.data();
+      });
+    }
+  }
+
+  Future<void> _fetchAdImages() async {
+    final doc = await FirebaseFirestore.instance.collection('ads').doc(widget.adId).get();
+
+    if (doc.exists) {
+      setState(() {
+        _imageUrls = List<String>.from(doc.data()?['images'] ?? []);
       });
     }
   }
@@ -106,48 +119,132 @@ class _AdDetailsScreenState extends State<AdDetailsScreen> {
           ),
         ],
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(widget.title, style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-            SizedBox(height: 8),
-            Text("Kategori: ${widget.category}", style: TextStyle(fontSize: 18)),
-            SizedBox(height: 8),
-            Text("Açıklama:", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
-            SizedBox(height: 8),
-            Text(widget.description, style: TextStyle(fontSize: 16)),
-            SizedBox(height: 8),
-            Text("Oluşturulma Tarihi:", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
-            SizedBox(height: 8),
-            Text(widget.createdAt, style: TextStyle(fontSize: 16)),
-            SizedBox(height: 8),
-            if (_ownerData != null) ...[
-              Text("İlan Sahibi:", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
-              SizedBox(height: 8),
-              Text("Ad: ${_ownerData!['name']}", style: TextStyle(fontSize: 16)),
-              Text("Email: ${_ownerData!['email']}", style: TextStyle(fontSize: 16)),
-              Text("Telefon: ${_ownerData!['phone']}", style: TextStyle(fontSize: 16)),
-              Text("Adres: ${_ownerData!['address']}", style: TextStyle(fontSize: 16)),
-            ],
-            SizedBox(height: 8),
-            Text("Konum:", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
-            SizedBox(height: 8),
-            Expanded(
-              child: GoogleMap(
-                initialCameraPosition: CameraPosition(
-                  target: widget.location,
-                  zoom: 15,
+            Text(
+              widget.title,
+              style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 16),
+            if (_imageUrls.isNotEmpty)
+              CarouselSlider(
+                options: CarouselOptions(
+                  height: 250,
+                  enlargeCenterPage: true,
+                  enableInfiniteScroll: false,
                 ),
-                //do not allow interaction with the map or camera
-                scrollGesturesEnabled: false,
-                markers: {
-                  Marker(
-                    markerId: MarkerId("ad-location"),
-                    position: widget.location,
+                items: _imageUrls.map((url) {
+                    return Container(
+                    margin: EdgeInsets.all(5.0),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(10.0),
+                      child: Stack(
+                        children: [
+                          FadeInImage.assetNetwork(
+                            placeholder: '',
+                            image: url,
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                            height: double.infinity,
+                            fadeInDuration: Duration(milliseconds: 500),
+                            imageErrorBuilder: (context, error, stackTrace) {
+                              return Center(child: CircularProgressIndicator());
+                            },
+                            placeholderErrorBuilder: (context, error, stackTrace) {
+                              return Center(child: CircularProgressIndicator());
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                    );
+                }).toList(),
+              ),
+            SizedBox(height: 16),
+            Card(
+              elevation: 4,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("Açıklama:", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+                    Text(widget.description, style: TextStyle(fontSize: 16)),
+                    Text("Oluşturulma Tarihi:", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+                    Text(widget.createdAt, style: TextStyle(fontSize: 16)),
+                  ],
+                ),
+              ),
+            ),
+            SizedBox(height: 16),
+            if (_ownerData != null)
+              Card(
+              elevation: 4,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                  "İlan Sahibi:",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                   ),
-                },
+                  SizedBox(height: 8),
+                  Text("Ad Soyad: ${_ownerData!['name']}", style: TextStyle(fontSize: 16)),
+                  SizedBox(height: 4),
+                  Text("Email: ${_ownerData!['email']}", style: TextStyle(fontSize: 16)),
+                  SizedBox(height: 4),
+                  Text("Telefon: ${_ownerData!['phone']}", style: TextStyle(fontSize: 16)),
+                  SizedBox(height: 4),
+                  Text("Adres: ${_ownerData!['address']}", style: TextStyle(fontSize: 16)),
+                ],
+                ),
+              ),
+              ),
+            SizedBox(height: 16),
+            Text(
+              "Konum:",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+            ),
+            SizedBox(height: 8),
+            Container(
+              height: 200,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black26,
+                    blurRadius: 10,
+                    offset: Offset(0, 5),
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: GoogleMap(
+                  initialCameraPosition: CameraPosition(
+                    target: widget.location,
+                    zoom: 15,
+                  ),
+                  markers: {
+                    Marker(
+                      markerId: MarkerId("ad-location"),
+                      position: widget.location,
+                    ),
+                  },
+                ),
               ),
             ),
           ],

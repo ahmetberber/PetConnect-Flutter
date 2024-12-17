@@ -81,82 +81,94 @@ class _AdsListScreenState extends State<AdsListScreen> {
             child: StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance.collection('ads').orderBy('createdAt', descending: true).snapshots(),
               builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: CircularProgressIndicator());
-                }
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Center(child: CircularProgressIndicator());
+              }
 
-                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                  return Center(
-                    child: Text(
-                      'Henüz ilan bulunmamaktadır.',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                return Center(
+                child: Text(
+                  'Henüz ilan bulunmamaktadır.',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                );
+              }
+
+              final ads = snapshot.data!.docs.where((doc) {
+                final data = doc.data() as Map<String, dynamic>;
+                final title = data['title']?.toLowerCase() ?? "";
+                final category = data['category'] ?? "";
+
+                final matchesSearch = title.contains(_searchQuery);
+                final matchesCategory = _selectedCategory == "Tümü" || category == _selectedCategory;
+                return matchesSearch && matchesCategory;
+              }).toList();
+
+              if (ads.isEmpty) {
+                return Center(child: Text("Hiç ilan bulunamadı."));
+              }
+
+              return ListView.builder(
+                itemCount: ads.length,
+                itemBuilder: (context, index) {
+                final ad = ads[index].data() as Map<String, dynamic>;
+                return Card(
+                  margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                  shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15.0),
+                  ),
+                  elevation: 5,
+                  child: ListTile(
+                  contentPadding: EdgeInsets.all(16.0),
+                  title: Text(
+                    ad['title'] ?? 'Başlık Yok',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                    SizedBox(height: 8.0),
+                    Text(ad['description'] ?? 'Açıklama Yok'),
+                    SizedBox(height: 8.0),
+                    Text(
+                      ad['createdAt'] != null
+                      ? DateFormat('dd/MM/yyyy HH:mm').format(
+                        (ad['createdAt'] as Timestamp).toDate())
+                      : '',
+                      style: TextStyle(color: Colors.grey),
                     ),
-                  );
-                }
-
-                final ads = snapshot.data!.docs.where((doc) {
-                  final data = doc.data() as Map<String, dynamic>;
-                  final title = data['title']?.toLowerCase() ?? "";
-                  final category = data['category'] ?? "";
-
-                  final matchesSearch = title.contains(_searchQuery);
-                  final matchesCategory = _selectedCategory == "Tümü" || category == _selectedCategory;
-                  return matchesSearch && matchesCategory;
-                }).toList();
-
-                if (ads.isEmpty) {
-                  return Center(child: Text("Hiç ilan bulunamadı."));
-                }
-
-                return ListView.builder(
-                  itemCount: ads.length,
-                  itemBuilder: (context, index) {
-                    final ad = ads[index].data() as Map<String, dynamic>;
-                    return Card(
-                      margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                      child: ListTile(
-                        title: Text(ad['title'] ?? 'Başlık Yok'),
-                        subtitle: Text(ad['description'] ?? 'Açıklama Yok'),
-                        leading: Icon(ad['category'] == 'Kayıp'
-                            ? Icons.warning
-                            : Icons.pets),
-                        trailing: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                          Text(ad['createdAt'] != null
-                            ? DateFormat('dd/MM/yyyy').format(
-                              (ad['createdAt'] as Timestamp).toDate())
-                            : ''),
-                          Text(ad['createdAt'] != null
-                            ? DateFormat('HH:mm').format(
-                              (ad['createdAt'] as Timestamp).toDate())
-                            : ''),
-                          ],
+                    ],
+                  ),
+                  leading: CircleAvatar(
+                    backgroundColor: Colors.blueAccent,
+                    child: Icon(
+                    ad['category'] == 'Kayıp' ? Icons.warning : Icons.pets,
+                    color: Colors.white,
+                    ),
+                  ),
+                  trailing: Icon(Icons.arrow_forward_ios),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => AdDetailsScreen(
+                          adId: ads[index].id,
+                          category: ad["category"],
+                          title: ad["title"],
+                          description: ad["description"],
+                          location: LatLng(ad["location"]["latitude"],
+                          ad["location"]["longitude"]),
+                          createdAt: DateFormat('dd/MM/yyyy HH:mm').format((ad['createdAt'] as Timestamp)
+                            .toDate()),
+                          ownerId: ad["userId"] ?? '',
                         ),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => AdDetailsScreen(
-                                adId: ads[index].id,
-                                category: ad["category"],
-                                title: ad["title"],
-                                description: ad["description"],
-                                location: LatLng(ad["location"]["latitude"],
-                                ad["location"]["longitude"]),
-                                createdAt: DateFormat('dd/MM/yyyy HH:mm')
-                                .format((ad['createdAt'] as Timestamp)
-                                    .toDate()),
-                                ownerId: ad["userId"] ?? '',
-                              ),
-                            ),
-                          );
-                        },
                       ),
                     );
                   },
+                  ),
                 );
+                },
+              );
               },
             ),
           ),

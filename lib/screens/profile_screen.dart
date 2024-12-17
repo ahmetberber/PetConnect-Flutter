@@ -97,61 +97,112 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Profil Güncelleme"),
+        title: Text("Profil"),
       ),
       body: Stack(
         children: [
-          Padding(
+          SingleChildScrollView(
             padding: const EdgeInsets.all(16.0),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                SizedBox(height: 16),
                 GestureDetector(
                   onTap: _pickImage,
-                  child: CachedNetworkImage(
-                    imageUrl: _profilePictureUrl!,
-                    imageBuilder: (context, imageProvider) => Container(
-                      width: 135.0,
-                      height: 135.0,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        image: DecorationImage(
-                          image: imageProvider, fit: BoxFit.cover),
-                      ),
-                    ),
-                    placeholder: (context, url) => CircularProgressIndicator(),
-                    errorWidget: (context, url, error) => Icon(Icons.error),
+                  child: CircleAvatar(
+                  radius: 90,
+                  backgroundColor: Colors.grey[200], // Default renk
+                  child: ClipOval(
+                    child: _selectedImage != null
+                      ? Image.file(_selectedImage!, fit: BoxFit.cover, width: 180, height: 180)
+                      : (_profilePictureUrl != null && _profilePictureUrl!.isNotEmpty
+                        ? CachedNetworkImage(
+                          imageUrl: _profilePictureUrl!,
+                          placeholder: (context, url) => CircularProgressIndicator(),
+                          errorWidget: (context, url, error) => Icon(Icons.error),
+                          fit: BoxFit.cover,
+                          width: 180,
+                          height: 180,
+                        )
+                        : Image.asset('assets/placeholder.png', fit: BoxFit.cover, width: 180, height: 180)),
+                  ),
                   ),
                 ),
                 SizedBox(height: 16),
-                TextField(
-                  controller: _nameController,
-                  decoration: InputDecoration(labelText: "Ad Soyad"),
-                ),
-                SizedBox(height: 16),
-                TextField(
-                  controller: _emailController,
-                  decoration: InputDecoration(labelText: "E-posta"),
-                ),
-                SizedBox(height: 16),
-                TextField(
-                  controller: _phoneController,
-                  decoration: InputDecoration(labelText: "Telefon Numarası"),
-                ),
-                SizedBox(height: 16),
-                TextField(
-                  controller: _addressController,
-                  decoration: InputDecoration(labelText: "Adres"),
+                Card(
+                  elevation: 4,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      children: [
+                        TextField(
+                          controller: _nameController,
+                          decoration: InputDecoration(
+                            labelText: "Ad Soyad",
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 16),
+                        TextField(
+                          controller: _emailController,
+                          decoration: InputDecoration(
+                            labelText: "E-posta",
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 16),
+                        TextField(
+                          controller: _phoneController,
+                          decoration: InputDecoration(
+                            labelText: "Telefon Numarası",
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 16),
+                        TextField(
+                          controller: _addressController,
+                          decoration: InputDecoration(
+                            labelText: "Adres",
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
                 SizedBox(height: 32),
                 ElevatedButton(
-                    onPressed: _updateUserProfile,
-                    child: Text("Profili Güncelle"),
+                  onPressed: _updateUserProfile,
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                   ),
+                  child: Text("Profili Güncelle"),
+                ),
                 SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: () async {
                     await FirebaseAuth.instance.signOut();
                   },
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
                   child: Text("Çıkış Yap"),
                 ),
               ],
@@ -159,9 +210,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           if (_isLoading)
             Container(
-              color: Colors.transparent,
+              color: Colors.black.withOpacity(0.5),
               child: Center(
-                child: CircularProgressIndicator(),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    CircularProgressIndicator(),
+                    SizedBox(height: 16),
+                    Text(
+                      "Profil güncelleniyor...",
+                      style: TextStyle(color: Colors.white, fontSize: 18),
+                    ),
+                  ],
+                ),
               ),
             ),
         ],

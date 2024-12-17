@@ -94,21 +94,25 @@ class _LoginScreenState extends State<LoginScreen> {
                 obscureText: true,
               ),
               SizedBox(height: 32),
-              _isLoading
+                _isLoading
                   ? CircularProgressIndicator()
                   : ElevatedButton(
-                      onPressed: _login,
-                      style: ElevatedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                    onPressed: _login,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blueAccent,
+                      foregroundColor: Colors.white,
+                      padding: EdgeInsets.all(16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                      child: Text(
-                        'Giriş Yap',
-                        style: TextStyle(fontSize: 18),
-                      ),
+                      elevation: 5,
+                      shadowColor: Colors.blueAccent.withOpacity(0.5),
                     ),
+                    child: Text(
+                      'Giriş Yap',
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                  ),
               SizedBox(height: 16),
               TextButton(
                 onPressed: () {

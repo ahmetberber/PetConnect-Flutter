@@ -4,6 +4,8 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_maps_webservice/places.dart';
+import 'package:intl/intl.dart';
+import 'package:petconnectflutter/screens/ad_details_screen.dart';
 
 const String googleApiKey = "AIzaSyCaCnDZHu-PCM2_UP0J4jodoocMf5mQwoc";
 
@@ -70,8 +72,26 @@ class _MapAdsScreenState extends State<MapAdsScreen> {
           position: LatLng(position['latitude'], position['longitude']),
           infoWindow: InfoWindow(
             title: data['title'] ?? 'Başlık Yok',
-            snippet: data['description'] ?? 'Açıklama Yok',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => AdDetailsScreen(
+                    adId: doc.id,
+                    category: doc["category"],
+                    title: doc["title"],
+                    description: doc["description"],
+                    location: LatLng(doc["location"]["latitude"],
+                    doc["location"]["longitude"]),
+                    createdAt: DateFormat('dd/MM/yyyy HH:mm').format((doc['createdAt'] as Timestamp)
+                      .toDate()),
+                    ownerId: doc["userId"] ?? '',
+                  ),
+                ),
+              );
+            },
           ),
+          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRose),
         );
         setState(() {
           _markers.add(marker);
