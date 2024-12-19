@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:petconnectflutter/screens/location_picker_screen.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -80,49 +79,6 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                SizedBox(height: 16),
-                ElevatedButton.icon(
-                  onPressed: _pickImage,
-                  icon: Icon(Icons.add_a_photo),
-                  label: Text("Fotoğraf Ekle"),
-                  style: ElevatedButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                ),
-                SizedBox(height: 16),
-                _images.isNotEmpty
-                    ? Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: List.generate(_images.length, (index) {
-                          return Stack(
-                            children: [
-                              GestureDetector(
-                                onTap: () => _showImageDialog(_images[index]),
-                                child: Image.file(
-                                  _images[index],
-                                  width: 100,
-                                  height: 100,
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                              Positioned(
-                                right: 0,
-                                child: GestureDetector(
-                                  onTap: () => _removeImage(index),
-                                  child: Icon(
-                                    Icons.remove_circle,
-                                    color: Colors.red,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          );
-                        }),
-                      )
-                    : Text("Henüz fotoğraf eklenmedi"),
                 Card(
                   elevation: 4,
                   shape: RoundedRectangleBorder(
@@ -177,24 +133,49 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
                           maxLines: 3,
                         ),
                         SizedBox(height: 16),
-                        Text(
-                          _selectedLocation != null
-                              ? "Konum: ${_selectedLocation!.latitude}, ${_selectedLocation!.longitude}"
-                              : "Konum: Henüz seçilmedi",
-                          style: TextStyle(fontSize: 16),
-                        ),
-                        SizedBox(height: 16),
                         ElevatedButton.icon(
-                          onPressed: _getCurrentLocation,
-                          icon: Icon(Icons.my_location),
-                          label: Text("Mevcut Konumu Getir"),
+                          onPressed: _pickImage,
+                          icon: Icon(Icons.add_a_photo),
+                          label: Text("Fotoğraf Ekle"),
                           style: ElevatedButton.styleFrom(
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),
                           ),
                         ),
-                        SizedBox(height: 8),
+                        SizedBox(height: 16),
+                        _images.isNotEmpty
+                            ? Wrap(
+                                spacing: 8,
+                                runSpacing: 8,
+                                children: List.generate(_images.length, (index) {
+                                  return Stack(
+                                    children: [
+                                      GestureDetector(
+                                        onTap: () => _showImageDialog(_images[index]),
+                                        child: Image.file(
+                                          _images[index],
+                                          width: 100,
+                                          height: 100,
+                                          fit: BoxFit.cover,
+                                        ),
+                                      ),
+                                      Positioned(
+                                        right: 0,
+                                        child: GestureDetector(
+                                          onTap: () => _removeImage(index),
+                                          child: Icon(
+                                            Icons.remove_circle,
+                                            color: Colors.red,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                }),
+                              )
+                            : Center(child: Text("Henüz fotoğraf eklenmedi", style: TextStyle(fontSize: 16, color: Colors.grey))),
+                        SizedBox(height: 16),
                         ElevatedButton.icon(
                           onPressed: () async {
                             LatLng? newLocation = await Navigator.push(
@@ -216,6 +197,13 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
                               borderRadius: BorderRadius.circular(10),
                             ),
                           ),
+                        ),
+                        SizedBox(height: 16),
+                        Text(
+                          _selectedLocation != null
+                              ? "Konum: ${_selectedLocation!.latitude}, ${_selectedLocation!.longitude}"
+                              : "Konum: Henüz seçilmedi",
+                          style: TextStyle(fontSize: 16),
                         ),
                       ],
                     ),
@@ -255,38 +243,6 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
         ],
       ),
     );
-  }
-
-  void _getCurrentLocation() async {
-    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Lütfen konum servisini etkinleştirin.")),
-      );
-      return;
-    }
-
-    LocationPermission permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Konum izni reddedildi.")),
-        );
-        return;
-      }
-    }
-
-    Position position = await Geolocator.getCurrentPosition(
-      locationSettings: LocationSettings(
-        accuracy: LocationAccuracy.high,
-        distanceFilter: 10,
-      ),
-    );
-
-    setState(() {
-      _selectedLocation = LatLng(position.latitude, position.longitude);
-    });
   }
 
   Future<void> _createAd() async {

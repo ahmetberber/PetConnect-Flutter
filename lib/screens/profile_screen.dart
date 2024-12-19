@@ -111,7 +111,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   onTap: _pickImage,
                   child: CircleAvatar(
                   radius: 90,
-                  backgroundColor: Colors.grey[200], // Default renk
+                  backgroundColor: Colors.grey[200],
                   child: ClipOval(
                     child: _selectedImage != null
                       ? Image.file(_selectedImage!, fit: BoxFit.cover, width: 180, height: 180)

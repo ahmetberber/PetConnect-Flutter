@@ -131,17 +131,11 @@ class _AdDetailsScreenState extends State<AdDetailsScreen> {
             SizedBox(height: 16),
             if (_imageUrls.isNotEmpty)
               CarouselSlider(
-                options: CarouselOptions(
-                  height: 250,
-                  enlargeCenterPage: true,
-                  enableInfiniteScroll: false,
-                ),
+                options: CarouselOptions(height: 300, enlargeCenterPage: true),
                 items: _imageUrls.map((url) {
-                    return Container(
+                  return Container(
                     margin: EdgeInsets.all(5.0),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
+                    decoration: BoxDecoration(borderRadius: BorderRadius.circular(10.0)),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(10.0),
                       child: Stack(
@@ -163,56 +157,68 @@ class _AdDetailsScreenState extends State<AdDetailsScreen> {
                         ],
                       ),
                     ),
-                    );
+                  );
                 }).toList(),
               ),
             SizedBox(height: 16),
-            Card(
-              elevation: 4,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("Açıklama:", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
-                    Text(widget.description, style: TextStyle(fontSize: 16)),
-                    Text("Oluşturulma Tarihi:", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
-                    Text(widget.createdAt, style: TextStyle(fontSize: 16)),
-                  ],
+            SizedBox(
+              width: MediaQuery.of(context).size.width,
+              child: Card(
+                elevation: 4,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      RichText(
+                        text: TextSpan(
+                          children: [
+                            TextSpan(text: "Açıklama: ", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.black)),
+                            TextSpan(text: widget.description, style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal, color: Colors.black)),
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      RichText(
+                        text: TextSpan(
+                          children: [
+                            TextSpan(text: "Oluşturulma Tarihi: ", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.black)),
+                            TextSpan(text: widget.createdAt, style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal, color: Colors.black)),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
             SizedBox(height: 16),
             if (_ownerData != null)
-              Card(
-              elevation: 4,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                  "İlan Sahibi:",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+              SizedBox(
+              width: MediaQuery.of(context).size.width,
+              child: Card(
+                elevation: 4,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text("İlan Sahibi:", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+                      SizedBox(height: 8),
+                      Text("Ad Soyad: ${_ownerData!['name']}", style: TextStyle(fontSize: 16)),
+                      SizedBox(height: 4),
+                      Text("Email: ${_ownerData!['email']}", style: TextStyle(fontSize: 16)),
+                      SizedBox(height: 4),
+                      Text("Telefon: ${_ownerData!['phone']}", style: TextStyle(fontSize: 16)),
+                      SizedBox(height: 4),
+                      Text("Adres: ${_ownerData!['address']}", style: TextStyle(fontSize: 16)),
+                    ],
                   ),
-                  SizedBox(height: 8),
-                  Text("Ad Soyad: ${_ownerData!['name']}", style: TextStyle(fontSize: 16)),
-                  SizedBox(height: 4),
-                  Text("Email: ${_ownerData!['email']}", style: TextStyle(fontSize: 16)),
-                  SizedBox(height: 4),
-                  Text("Telefon: ${_ownerData!['phone']}", style: TextStyle(fontSize: 16)),
-                  SizedBox(height: 4),
-                  Text("Adres: ${_ownerData!['address']}", style: TextStyle(fontSize: 16)),
-                ],
                 ),
               ),
-              ),
+            ),
             SizedBox(height: 16),
             Text(
               "Konum:",
@@ -220,7 +226,7 @@ class _AdDetailsScreenState extends State<AdDetailsScreen> {
             ),
             SizedBox(height: 8),
             Container(
-              height: 200,
+              height: 300,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
                 boxShadow: [

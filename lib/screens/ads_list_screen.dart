@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -56,11 +57,7 @@ class _AdsListScreenState extends State<AdsListScreen> {
                   child: DropdownButtonHideUnderline(
                     child: DropdownButton<String>(
                       value: _selectedCategory,
-                      items: [
-                        "Tümü",
-                        "Kayıp",
-                        "Sahiplendirme",
-                      ].map((category) {
+                      items: ["Tümü", "Kayıp", "Sahiplendirme"].map((category) {
                         return DropdownMenuItem<String>(
                           value: category,
                           child: Text(category),
@@ -87,10 +84,10 @@ class _AdsListScreenState extends State<AdsListScreen> {
 
               if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
                 return Center(
-                child: Text(
-                  'Henüz ilan bulunmamaktadır.',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
+                  child: Text(
+                    'Henüz ilan bulunmamaktadır.',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
                 );
               }
 
@@ -98,7 +95,6 @@ class _AdsListScreenState extends State<AdsListScreen> {
                 final data = doc.data() as Map<String, dynamic>;
                 final title = data['title']?.toLowerCase() ?? "";
                 final category = data['category'] ?? "";
-
                 final matchesSearch = title.contains(_searchQuery);
                 final matchesCategory = _selectedCategory == "Tümü" || category == _selectedCategory;
                 return matchesSearch && matchesCategory;
@@ -114,57 +110,47 @@ class _AdsListScreenState extends State<AdsListScreen> {
                 final ad = ads[index].data() as Map<String, dynamic>;
                 return Card(
                   margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                  shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15.0),
-                  ),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
                   elevation: 5,
                   child: ListTile(
-                  contentPadding: EdgeInsets.all(16.0),
-                  title: Text(
-                    ad['title'] ?? 'Başlık Yok',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                    SizedBox(height: 8.0),
-                    Text(ad['description'] ?? 'Açıklama Yok'),
-                    SizedBox(height: 8.0),
-                    Text(
-                      ad['createdAt'] != null
-                      ? DateFormat('dd/MM/yyyy HH:mm').format(
-                        (ad['createdAt'] as Timestamp).toDate())
-                      : '',
-                      style: TextStyle(color: Colors.grey),
-                    ),
-                    ],
-                  ),
-                  leading: CircleAvatar(
-                    backgroundColor: Colors.blueAccent,
-                    child: Icon(
-                    ad['category'] == 'Kayıp' ? Icons.warning : Icons.pets,
-                    color: Colors.white,
-                    ),
-                  ),
-                  trailing: Icon(Icons.arrow_forward_ios),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => AdDetailsScreen(
-                          adId: ads[index].id,
-                          category: ad["category"],
-                          title: ad["title"],
-                          description: ad["description"],
-                          location: LatLng(ad["location"]["latitude"],
-                          ad["location"]["longitude"]),
-                          createdAt: DateFormat('dd/MM/yyyy HH:mm').format((ad['createdAt'] as Timestamp)
-                            .toDate()),
-                          ownerId: ad["userId"] ?? '',
+                    contentPadding: EdgeInsets.all(16.0),
+                    title: Text(ad['title'] ?? 'Başlık Yok', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(height: 5),
+                        Text(ad['description'] ?? 'Açıklama Yok'),
+                        SizedBox(height: 2),
+                        Text(ad['createdAt'] != null ? DateFormat('dd/MM/yyyy HH:mm').format(
+                            (ad['createdAt'] as Timestamp).toDate()) : '',
+                          style: TextStyle(color: Colors.grey),
                         ),
+                      ],
+                    ),
+                    leading: ClipOval(
+                      child: AspectRatio(
+                        aspectRatio: 1,
+                        child: ad['images'] != null
+                            ? CachedNetworkImage(imageUrl: ad['images'][0], fit: BoxFit.cover)
+                            : Container(color: Colors.grey[300], child: Icon(Icons.image, size: 40, color: Colors.grey)),
                       ),
-                    );
-                  },
+                    ),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AdDetailsScreen(
+                            adId: ads[index].id,
+                            category: ad["category"],
+                            title: ad["title"],
+                            description: ad["description"],
+                            location: LatLng(ad["location"]["latitude"], ad["location"]["longitude"]),
+                            createdAt: DateFormat('dd/MM/yyyy HH:mm').format((ad['createdAt'] as Timestamp).toDate()),
+                            ownerId: ad["userId"] ?? '',
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 );
                 },

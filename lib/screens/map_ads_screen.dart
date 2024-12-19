@@ -102,7 +102,6 @@ class _MapAdsScreenState extends State<MapAdsScreen> {
       _isLoading = false;
     });
   }
-
   Future<void> _searchPlace() async {
     Prediction? prediction = await PlacesAutocomplete.show(
       offset: 0,
@@ -114,7 +113,8 @@ class _MapAdsScreenState extends State<MapAdsScreen> {
       apiKey: googleApiKey,
       mode: Mode.overlay,
       language: "tr",
-      components: [Component(Component.country, "tr")]
+      components: [Component(Component.country, "tr")],
+      logo: Container(height: 0),
     );
 
     if (prediction != null) {
