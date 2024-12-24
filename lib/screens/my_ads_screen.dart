@@ -7,6 +7,8 @@ import 'package:petconnectflutter/screens/edit_ad_screen.dart';
 import 'package:petconnectflutter/screens/create_ad_screen.dart';
 
 class MyAdsScreen extends StatelessWidget {
+  const MyAdsScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     final userId = FirebaseAuth.instance.currentUser?.uid;
@@ -39,7 +41,12 @@ class MyAdsScreen extends StatelessWidget {
           final ads = snapshot.data!.docs;
 
           if (ads.isEmpty) {
-            return Center(child: Text("Hiç ilan oluşturmadınız."));
+            return Center(
+              child: Text(
+                "Hiç ilan oluşturmadınız.",
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              )
+            );
           }
 
             return ListView.builder(

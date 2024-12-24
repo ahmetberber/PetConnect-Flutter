@@ -16,14 +16,14 @@ class EditAdScreen extends StatefulWidget {
   final List<String> currentImages;
 
   const EditAdScreen({
-    Key? key,
+    super.key,
     required this.adId,
     required this.currentTitle,
     required this.currentDescription,
     required this.currentCategory,
     required this.currentLocation,
     required this.currentImages,
-  }) : super(key: key);
+  });
 
   @override
   _EditAdScreenState createState() => _EditAdScreenState();
@@ -281,7 +281,7 @@ class _EditAdScreenState extends State<EditAdScreen> {
                               );
                             }),
                           ],
-                        ) : Center(child: Text("Henüz fotoğraf eklenmedi", style: TextStyle(fontSize: 16, color: Colors.grey))),
+                        ) : Center(child: Text("Henüz fotoğraf eklenmedi", style: TextStyle(fontSize: 16))),
                         SizedBox(height: 16),
                         ElevatedButton.icon(
                           onPressed: () async {

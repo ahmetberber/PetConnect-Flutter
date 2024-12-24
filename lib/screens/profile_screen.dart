@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -7,6 +8,8 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
 class ProfileScreen extends StatefulWidget {
+  const ProfileScreen({super.key});
+
   @override
   _ProfileScreenState createState() => _ProfileScreenState();
 }
@@ -195,6 +198,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: () async {
+                    FirebaseMessaging messaging = FirebaseMessaging.instance;
+                    await messaging.unsubscribeFromTopic(_auth.currentUser!.uid);
                     await FirebaseAuth.instance.signOut();
                   },
                   style: ElevatedButton.styleFrom(

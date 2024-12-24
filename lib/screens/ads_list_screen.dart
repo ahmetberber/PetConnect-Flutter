@@ -1,7 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:petconnectflutter/screens/ad_details_screen.dart';
 
@@ -86,7 +85,7 @@ class _AdsListScreenState extends State<AdsListScreen> {
                 return Center(
                   child: Text(
                     'Henüz ilan bulunmamaktadır.',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                 );
               }
@@ -138,17 +137,7 @@ class _AdsListScreenState extends State<AdsListScreen> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(
-                          builder: (context) => AdDetailsScreen(
-                            adId: ads[index].id,
-                            category: ad["category"],
-                            title: ad["title"],
-                            description: ad["description"],
-                            location: LatLng(ad["location"]["latitude"], ad["location"]["longitude"]),
-                            createdAt: DateFormat('dd/MM/yyyy HH:mm').format((ad['createdAt'] as Timestamp).toDate()),
-                            ownerId: ad["userId"] ?? '',
-                          ),
-                        ),
+                        MaterialPageRoute(builder: (context) => AdDetailsScreen(adId: ads[index].id)),
                       );
                     },
                   ),

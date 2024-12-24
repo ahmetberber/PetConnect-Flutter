@@ -1,5 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:petconnectflutter/main.dart';
+import 'package:petconnectflutter/screens/chat_list_screen.dart';
 import 'package:petconnectflutter/screens/my_ads_screen.dart';
 import 'ads_list_screen.dart';
 import 'map_ads_screen.dart';
@@ -18,43 +22,12 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _setupFirebaseMessaging();
   }
-
-  void _setupFirebaseMessaging() async {
-    FirebaseMessaging messaging = FirebaseMessaging.instance;
-
-    NotificationSettings settings = await messaging.requestPermission(
-      alert: true,
-      badge: true,
-      sound: true,
-    );
-
-    if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-      print("Bildirim izni verildi!");
-    } else if (settings.authorizationStatus == AuthorizationStatus.denied) {
-      print("Bildirim izni reddedildi.");
-    }
-
-    String? token = await messaging.getToken();
-    print("Firebase Token: $token");
-
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      print("Bir bildirim alındı: ${message.notification?.title}");
-      _showNotification(message.notification?.title, message.notification?.body);
-    });
-  }
-
-  void _showNotification(String? title, String? body) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("$title: $body")),
-    );
-  }
-
 
   static final List<Widget> _widgetOptions = <Widget>[
     AdsListScreen(),
     MyAdsScreen(),
+    ChatListScreen(),
     MapAdsScreen(),
     ProfileScreen(),
   ];
@@ -100,6 +73,10 @@ class _HomeScreenState extends State<HomeScreen> {
               BottomNavigationBarItem(
                 icon: Icon(Icons.assignment),
                 label: 'İlanlarım',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.chat),
+                label: 'Mesajlar',
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.map),

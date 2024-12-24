@@ -174,7 +174,7 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
                                   );
                                 }),
                               )
-                            : Center(child: Text("Henüz fotoğraf eklenmedi", style: TextStyle(fontSize: 16, color: Colors.grey))),
+                            : Center(child: Text("Henüz fotoğraf eklenmedi", style: TextStyle(fontSize: 16))),
                         SizedBox(height: 16),
                         ElevatedButton.icon(
                           onPressed: () async {

@@ -3,104 +3,89 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:intl/intl.dart';
+import 'package:petconnectflutter/screens/chat_screen.dart';
 
 class AdDetailsScreen extends StatefulWidget {
   final String adId;
-  final String category;
-  final String title;
-  final String description;
-  final LatLng location;
-  final String createdAt;
-  final String ownerId;
 
-  const AdDetailsScreen({
-    super.key,
-    required this.adId,
-    required this.category,
-    required this.title,
-    required this.description,
-    required this.location,
-    required this.createdAt,
-    required this.ownerId,
-  });
+  const AdDetailsScreen({super.key, required this.adId});
 
   @override
   _AdDetailsScreenState createState() => _AdDetailsScreenState();
 }
 
 class _AdDetailsScreenState extends State<AdDetailsScreen> {
-  bool _isFavorite = false;
   Map<String, dynamic>? _ownerData;
   List<String> _imageUrls = [];
+  String category = '';
+  String title = '';
+  String description = '';
+  LatLng location = LatLng(0, 0);
+  String createdAt = '';
+  String ownerId = '';
+  bool isLoaded = false;
 
   @override
   void initState() {
     super.initState();
-    _checkIfFavorite();
-    _fetchOwnerData();
-    _fetchAdImages();
+    _initAdDetails();
   }
 
-  Future<void> _checkIfFavorite() async {
-    final uid = FirebaseAuth.instance.currentUser?.uid;
-    if (uid == null) return;
-
-    final doc = await FirebaseFirestore.instance
-        .collection('favorites')
-        .doc(uid)
-        .get();
-
-    if (doc.exists) {
-      List favorites = doc.data()?['adIds'] ?? [];
-      setState(() {
-        _isFavorite = favorites.contains(widget.adId);
-      });
-    }
+  Future<void> _initAdDetails() async {
+    await _fetchAdDetails();
   }
 
-  Future<void> _fetchOwnerData() async {
-    final doc = await FirebaseFirestore.instance.collection('users').doc(widget.ownerId).get();
-
-    if (doc.exists) {
-      setState(() {
-        _ownerData = doc.data();
-      });
-    }
-  }
-
-  Future<void> _fetchAdImages() async {
+  Future<void> _fetchAdDetails() async {
     final doc = await FirebaseFirestore.instance.collection('ads').doc(widget.adId).get();
 
     if (doc.exists) {
+      final data = doc.data();
       setState(() {
+        category = data?['category'] ?? '';
+        title = data?['title'] ?? '';
+        description = data?['description'] ?? '';
+        location = LatLng(data?['location']['latitude'] ?? 0, data?['location']['longitude'] ?? 0);
+        createdAt = data?['createdAt'] != null ? DateFormat('dd/MM/yyyy HH:mm').format((data?['createdAt'] as Timestamp).toDate()) : '';
+        ownerId = data?['userId'] ?? '';
         _imageUrls = List<String>.from(doc.data()?['images'] ?? []);
       });
     }
-  }
 
-  Future<void> _toggleFavorite() async {
-    final uid = FirebaseAuth.instance.currentUser?.uid;
-    if (uid == null) return;
-
-    final docRef = FirebaseFirestore.instance.collection('favorites').doc(uid);
-    final doc = await docRef.get();
-    if (doc.exists) {
-      List favorites = doc.data()?['adIds'] ?? [];
-
-      if (_isFavorite) {
-        favorites.remove(widget.adId);
-      } else {
-        favorites.add(widget.adId);
-      }
-
-      await docRef.update({'adIds': favorites});
-    } else {
-      await docRef.set({'adIds': [widget.adId]});
+    final ownerDoc = await FirebaseFirestore.instance.collection('users').doc(ownerId).get();
+    if (ownerDoc.exists) {
+      setState(() {
+        _ownerData = ownerDoc.data();
+      });
     }
 
     setState(() {
-      _isFavorite = !_isFavorite;
+      isLoaded = true;
     });
+  }
+
+
+  Future<void> startChat(String currentUserId, String adOwnerId, BuildContext ctx) async {
+    final chatRef = FirebaseFirestore.instance.collection('chats');
+    final existingChat = await chatRef.where('participants', arrayContains: currentUserId).get();
+    String chatId;
+
+    final chat = existingChat.docs.where((doc) => (doc['participants'] as List).any((participant) => participant == adOwnerId)).firstOrNull;
+    if (chat != null) {
+      chatId = chat.id;
+    } else {
+      final newChat = await chatRef.add({
+        'participants': [currentUserId, adOwnerId],
+        'createdAt': DateTime.now().millisecondsSinceEpoch,
+      });
+
+      chatId = newChat.id;
+    }
+
+    Navigator.push(
+      ctx,
+      MaterialPageRoute(builder: (context) => ChatScreen(chatId: chatId)),
+    );
   }
 
   @override
@@ -108,25 +93,26 @@ class _AdDetailsScreenState extends State<AdDetailsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text("İlan Detayları"),
-        actions: [
-          IconButton(
-            icon: Icon(
-              _isFavorite ? Icons.favorite : Icons.favorite_border,
-              color: Colors.red,
-              size: 30,
-            ),
-            onPressed: _toggleFavorite,
-          ),
-        ],
       ),
-      body: SingleChildScrollView(
+      body: !isLoaded ?
+      Center(child: CircularProgressIndicator()) :
+      SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              widget.title,
-              style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+              Text(title, style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
+              if (FirebaseAuth.instance.currentUser?.uid != ownerId)
+                ElevatedButton(
+                  onPressed: () {
+                    startChat(FirebaseAuth.instance.currentUser!.uid, ownerId, context);
+                  },
+                  child: Text("Mesaj Gönder"),
+                ),
+              ],
             ),
             SizedBox(height: 16),
             if (_imageUrls.isNotEmpty)
@@ -175,7 +161,7 @@ class _AdDetailsScreenState extends State<AdDetailsScreen> {
                         text: TextSpan(
                           children: [
                             TextSpan(text: "Açıklama: ", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.black)),
-                            TextSpan(text: widget.description, style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal, color: Colors.black)),
+                            TextSpan(text: description, style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal, color: Colors.black)),
                           ],
                         ),
                       ),
@@ -184,7 +170,7 @@ class _AdDetailsScreenState extends State<AdDetailsScreen> {
                         text: TextSpan(
                           children: [
                             TextSpan(text: "Oluşturulma Tarihi: ", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.black)),
-                            TextSpan(text: widget.createdAt, style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal, color: Colors.black)),
+                            TextSpan(text: createdAt, style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal, color: Colors.black)),
                           ],
                         ),
                       ),
@@ -241,13 +227,13 @@ class _AdDetailsScreenState extends State<AdDetailsScreen> {
                 borderRadius: BorderRadius.circular(10),
                 child: GoogleMap(
                   initialCameraPosition: CameraPosition(
-                    target: widget.location,
+                    target: location,
                     zoom: 15,
                   ),
                   markers: {
                     Marker(
                       markerId: MarkerId("ad-location"),
-                      position: widget.location,
+                      position: location,
                     ),
                   },
                 ),
