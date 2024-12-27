@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:petconnectflutter/screens/home_screen.dart';
+import 'package:petconnectflutter/screens/home.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -37,13 +37,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
     });
 
     try {
-      // Kullanıcıyı Firebase Authentication'a ekle
       UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
 
-      // Kullanıcıyı Firestore'a uid ile kaydet
       await _firestore.collection('users').doc(userCredential.user?.uid).set({
         'name': _nameController.text.trim(),
         'email': _emailController.text.trim(),
@@ -52,15 +50,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
         'createdAt': Timestamp.now(),
       });
 
-      // Kayıt başarılı, ana sayfaya yönlendir
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => HomeScreen()),
-      );
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomeScreen()));
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Kayıt başarısız: ${e.toString()}')),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Kayıt başarısız: ${e.toString()}')));
     } finally {
       setState(() {
         _isLoading = false;
@@ -92,7 +84,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             TextField(
               controller: _emailController,
               decoration: InputDecoration(
-                labelText: 'Email',
+                labelText: 'E-Posta',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -104,7 +96,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             TextField(
               controller: _passwordController,
               decoration: InputDecoration(
-                labelText: 'Şifre',
+                labelText: 'Parola',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),

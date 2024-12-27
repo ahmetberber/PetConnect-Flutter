@@ -10,10 +10,12 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:googleapis_auth/auth_io.dart' as auth;
 import 'dart:io';
 
+import 'package:petconnectflutter/screens/ad/detail.dart';
+
 class ChatScreen extends StatefulWidget {
   final String chatId;
 
-  ChatScreen({required this.chatId});
+  const ChatScreen({super.key, required this.chatId});
 
   @override
   _ChatScreenState createState() => _ChatScreenState();
@@ -26,6 +28,8 @@ class _ChatScreenState extends State<ChatScreen> {
   final ScrollController _scrollController = ScrollController();
   final ImagePicker _picker = ImagePicker();
   List<File> _selectedImages = [];
+  String adTitle = "";
+  bool _chatActive = false;
 
   @override
   void initState() {
@@ -36,10 +40,13 @@ class _ChatScreenState extends State<ChatScreen> {
 
   void _initChat() async {
     final chatDoc = await FirebaseFirestore.instance.collection('chats').doc(widget.chatId).get();
+    final adDoc = await FirebaseFirestore.instance.collection('ads').doc(chatDoc['adId']).get();
     final receiverNameDoc = await FirebaseFirestore.instance.collection('users').doc(chatDoc['participants'].firstWhere((participant) => participant != FirebaseAuth.instance.currentUser!.uid)).get();
     setState(() {
       chat = chatDoc.data()!;
-      receiverName = receiverNameDoc.data()?['name'] ?? "No Name";
+      _chatActive = adDoc.data()?['is_active'];
+      adTitle = adDoc.data()?['title'] ?? "-";
+      receiverName = receiverNameDoc.data()?['name'] ?? "-";
     });
 
     FirebaseFirestore.instance.collection('notifications').where('chatId', isEqualTo: widget.chatId).snapshots().listen((snapshot) {
@@ -77,7 +84,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> _sendNotification(String content, String type) async {
-    final message = type == 'text' ? content : 'Image';
+    final message = type == 'text' ? content : 'Görüntü';
     await FirebaseFirestore.instance.collection('notifications').add({
       'chatId': widget.chatId,
       'message': message,
@@ -91,7 +98,7 @@ class _ChatScreenState extends State<ChatScreen> {
       'message': {
         'topic': chat['participants'].firstWhere((participant) => participant != FirebaseAuth.instance.currentUser!.uid),
         'notification': {
-          'title': "New Message From $receiverName",
+          'title': receiverName,
           'body': message
         },
         'data': {'chatId': widget.chatId },
@@ -124,10 +131,38 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> _pickImages() async {
-    final pickedFiles = await _picker.pickMultiImage();
-    setState(() {
-      _selectedImages = pickedFiles.map((pickedFile) => File(pickedFile.path)).toList();
-    });
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        ListTile(
+        leading: Icon(Icons.photo_library),
+        title: Text('Galeriden Seç'),
+        onTap: () async {
+          Navigator.pop(context);
+          final pickedFiles = await _picker.pickMultiImage();
+          setState(() {
+            _selectedImages = pickedFiles.map((pickedFile) => File(pickedFile.path)).toList();
+          });
+        },
+        ),
+        ListTile(
+        leading: Icon(Icons.camera_alt),
+        title: Text('Kameradan Çek'),
+        onTap: () async {
+          Navigator.pop(context);
+          final pickedFile = await _picker.pickImage(source: ImageSource.camera);
+          if (pickedFile != null) {
+          setState(() {
+            _selectedImages.add(File(pickedFile.path));
+          });
+          }
+        },
+        ),
+      ],
+      ),
+    );
   }
 
   void _removeImage(int index) {
@@ -153,7 +188,25 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(receiverName),
+        title: Text('$receiverName - $adTitle'),
+        actions: [
+          if (_chatActive)
+            PopupMenuButton<String>(
+              onSelected: (value) {
+                if (value == 'details') {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => AdDetailsScreen(adId: chat['adId'])));
+                }
+              },
+              itemBuilder: (BuildContext context) {
+                return {'İlan Detayına Git'}.map((String choice) {
+                  return PopupMenuItem<String>(
+                    value: 'details',
+                    child: Text(choice),
+                  );
+                }).toList();
+              },
+            ),
+        ],
       ),
       body: Column(
         children: [
@@ -172,7 +225,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     return Align(
                       alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
                       child: Container(
-                        margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                        margin: EdgeInsets.only(top: 10, bottom: 10, left: isMe ? 80 : 10, right: isMe ? 10 : 80),
                         padding: EdgeInsets.all(15),
                         decoration: BoxDecoration(
                           color: isMe ? Colors.teal[100] : Colors.grey[300],
@@ -254,44 +307,45 @@ class _ChatScreenState extends State<ChatScreen> {
                 },
               ),
             ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                IconButton(
-                  icon: Icon(Icons.image, color: Colors.teal),
-                  onPressed: _pickImages,
-                ),
-                Expanded(
-                  child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 15),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[200],
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    child: TextField(
-                      controller: _controller,
-                      decoration: InputDecoration(
-                        hintText: "Type a message",
-                        border: InputBorder.none,
+          if (_chatActive)
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                children: [
+                  IconButton(
+                    icon: Icon(Icons.image, color: Colors.teal),
+                    onPressed: _pickImages,
+                  ),
+                  Expanded(
+                    child: Container(
+                      padding: EdgeInsets.symmetric(horizontal: 15),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[200],
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      child: TextField(
+                        controller: _controller,
+                        decoration: InputDecoration(
+                          hintText: "Mesajınızı yazın...",
+                          border: InputBorder.none,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                IconButton(
-                  icon: Icon(Icons.send, color: Colors.teal),
-                  onPressed: () {
-                    if (_selectedImages.isNotEmpty) {
-                      _sendImages();
-                    }
-                    if (_controller.text.isNotEmpty) {
-                      _sendMessage(_controller.text, 'text');
-                    }
-                  },
-                ),
-              ],
+                  IconButton(
+                    icon: Icon(Icons.send, color: Colors.teal),
+                    onPressed: () {
+                      if (_selectedImages.isNotEmpty) {
+                        _sendImages();
+                      }
+                      if (_controller.text.isNotEmpty) {
+                        _sendMessage(_controller.text, 'text');
+                      }
+                    },
+                  ),
+                ],
+              ),
             ),
-          ),
         ],
       ),
     );

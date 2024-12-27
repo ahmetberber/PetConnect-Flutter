@@ -4,7 +4,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_maps_webservice/places.dart';
-import 'package:petconnectflutter/screens/ad_details_screen.dart';
+import 'package:petconnectflutter/screens/ad/detail.dart';
 
 const String googleApiKey = "AIzaSyCaCnDZHu-PCM2_UP0J4jodoocMf5mQwoc";
 

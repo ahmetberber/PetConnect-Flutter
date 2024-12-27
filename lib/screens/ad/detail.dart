@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:intl/intl.dart';
-import 'package:petconnectflutter/screens/chat_screen.dart';
+import 'package:petconnectflutter/screens/chat/detail.dart';
 
 class AdDetailsScreen extends StatefulWidget {
   final String adId;
@@ -16,7 +16,6 @@ class AdDetailsScreen extends StatefulWidget {
 }
 
 class _AdDetailsScreenState extends State<AdDetailsScreen> {
-  Map<String, dynamic>? _ownerData;
   List<String> _imageUrls = [];
   String category = '';
   String title = '';
@@ -29,11 +28,7 @@ class _AdDetailsScreenState extends State<AdDetailsScreen> {
   @override
   void initState() {
     super.initState();
-    _initAdDetails();
-  }
-
-  Future<void> _initAdDetails() async {
-    await _fetchAdDetails();
+    _fetchAdDetails();
   }
 
   Future<void> _fetchAdDetails() async {
@@ -52,22 +47,15 @@ class _AdDetailsScreenState extends State<AdDetailsScreen> {
       });
     }
 
-    final ownerDoc = await FirebaseFirestore.instance.collection('users').doc(ownerId).get();
-    if (ownerDoc.exists) {
-      setState(() {
-        _ownerData = ownerDoc.data();
-      });
-    }
-
     setState(() {
       isLoaded = true;
     });
   }
 
 
-  Future<void> startChat(String currentUserId, String adOwnerId, BuildContext ctx) async {
+  Future<void> startChat(String currentUserId, String adOwnerId) async {
     final chatRef = FirebaseFirestore.instance.collection('chats');
-    final existingChat = await chatRef.where('participants', arrayContains: currentUserId).get();
+    final existingChat = await chatRef.where('participants', arrayContains: currentUserId).where('adId', isEqualTo: widget.adId).get();
     String chatId;
 
     final chat = existingChat.docs.where((doc) => (doc['participants'] as List).any((participant) => participant == adOwnerId)).firstOrNull;
@@ -76,23 +64,21 @@ class _AdDetailsScreenState extends State<AdDetailsScreen> {
     } else {
       final newChat = await chatRef.add({
         'participants': [currentUserId, adOwnerId],
+        'adId': widget.adId,
         'createdAt': DateTime.now().millisecondsSinceEpoch,
       });
 
       chatId = newChat.id;
     }
 
-    Navigator.push(
-      ctx,
-      MaterialPageRoute(builder: (context) => ChatScreen(chatId: chatId)),
-    );
+    Navigator.push(context, MaterialPageRoute(builder: (context) => ChatScreen(chatId: chatId)));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("İlan Detayları"),
+        title: Text("İlan Detayı"),
       ),
       body: !isLoaded ?
       Center(child: CircularProgressIndicator()) :
@@ -106,11 +92,11 @@ class _AdDetailsScreenState extends State<AdDetailsScreen> {
               children: [
               Text(title, style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
               if (FirebaseAuth.instance.currentUser?.uid != ownerId)
-                ElevatedButton(
+                IconButton(
                   onPressed: () {
-                    startChat(FirebaseAuth.instance.currentUser!.uid, ownerId, context);
+                    startChat(FirebaseAuth.instance.currentUser!.uid, ownerId);
                   },
-                  child: Text("Mesaj Gönder"),
+                  icon: Icon(Icons.chat_rounded, size: 30),
                 ),
               ],
             ),
@@ -169,37 +155,11 @@ class _AdDetailsScreenState extends State<AdDetailsScreen> {
                       RichText(
                         text: TextSpan(
                           children: [
-                            TextSpan(text: "Oluşturulma Tarihi: ", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.black)),
+                            TextSpan(text: "İlan Tarihi: ", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.black)),
                             TextSpan(text: createdAt, style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal, color: Colors.black)),
                           ],
                         ),
                       ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            SizedBox(height: 16),
-            if (_ownerData != null)
-              SizedBox(
-              width: MediaQuery.of(context).size.width,
-              child: Card(
-                elevation: 4,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text("İlan Sahibi:", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
-                      SizedBox(height: 8),
-                      Text("Ad Soyad: ${_ownerData!['name']}", style: TextStyle(fontSize: 16)),
-                      SizedBox(height: 4),
-                      Text("Email: ${_ownerData!['email']}", style: TextStyle(fontSize: 16)),
-                      SizedBox(height: 4),
-                      Text("Telefon: ${_ownerData!['phone']}", style: TextStyle(fontSize: 16)),
-                      SizedBox(height: 4),
-                      Text("Adres: ${_ownerData!['address']}", style: TextStyle(fontSize: 16)),
                     ],
                   ),
                 ),
@@ -234,6 +194,7 @@ class _AdDetailsScreenState extends State<AdDetailsScreen> {
                     Marker(
                       markerId: MarkerId("ad-location"),
                       position: location,
+                      
                     ),
                   },
                 ),

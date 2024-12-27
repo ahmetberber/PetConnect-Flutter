@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:petconnectflutter/screens/location_picker_screen.dart';
+import 'package:petconnectflutter/screens/ad/pick_location.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
@@ -24,12 +24,40 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
   bool _isLoading = false;
 
   Future<void> _pickImage() async {
-    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      setState(() {
-        _images.add(File(pickedFile.path));
-      });
-    }
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        ListTile(
+        leading: Icon(Icons.photo_library),
+        title: Text('Galeriden Seç'),
+        onTap: () async {
+          Navigator.pop(context);
+          final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+          if (pickedFile != null) {
+          setState(() {
+            _images.add(File(pickedFile.path));
+          });
+          }
+        },
+        ),
+        ListTile(
+        leading: Icon(Icons.camera_alt),
+        title: Text('Kamera ile Çek'),
+        onTap: () async {
+          Navigator.pop(context);
+          final pickedFile = await _picker.pickImage(source: ImageSource.camera);
+          if (pickedFile != null) {
+          setState(() {
+            _images.add(File(pickedFile.path));
+          });
+          }
+        },
+        ),
+      ],
+      ),
+    );
   }
 
   Future<List<String>> _uploadImages() async {
@@ -273,6 +301,7 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
         'createdAt': Timestamp.now(),
         'userId': user.uid,
         'images': imageUrls,
+        'is_active': true,
       });
 
       ScaffoldMessenger.of(context).showSnackBar(

@@ -1,13 +1,8 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:petconnectflutter/main.dart';
-import 'package:petconnectflutter/screens/chat_list_screen.dart';
-import 'package:petconnectflutter/screens/my_ads_screen.dart';
-import 'ads_list_screen.dart';
-import 'map_ads_screen.dart';
-import 'profile_screen.dart';
+import 'package:petconnectflutter/screens/chat/list.dart';
+import 'package:petconnectflutter/screens/ad/my_ads.dart';
+import 'ad/list.dart';
+import 'profile.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -28,7 +23,6 @@ class _HomeScreenState extends State<HomeScreen> {
     AdsListScreen(),
     MyAdsScreen(),
     ChatListScreen(),
-    MapAdsScreen(),
     ProfileScreen(),
   ];
 
@@ -77,10 +71,6 @@ class _HomeScreenState extends State<HomeScreen> {
               BottomNavigationBarItem(
                 icon: Icon(Icons.chat),
                 label: 'Mesajlar',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.map),
-                label: 'Harita',
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.person),

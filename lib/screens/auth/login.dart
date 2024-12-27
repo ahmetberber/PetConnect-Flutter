@@ -1,8 +1,8 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:petconnectflutter/screens/home_screen.dart';
-import 'package:petconnectflutter/screens/register_screen.dart';
+import 'package:petconnectflutter/screens/home.dart';
+import 'package:petconnectflutter/screens/auth/register.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -78,7 +78,7 @@ class _LoginScreenState extends State<LoginScreen> {
               TextField(
                 controller: _emailController,
                 decoration: InputDecoration(
-                  labelText: 'Email',
+                  labelText: 'E-Posta',
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -90,7 +90,7 @@ class _LoginScreenState extends State<LoginScreen> {
               TextField(
                 controller: _passwordController,
                 decoration: InputDecoration(
-                  labelText: 'Şifre',
+                  labelText: 'Parola',
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),

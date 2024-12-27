@@ -49,10 +49,35 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _pickImage() async {
-    final pickedImage = await ImagePicker().pickImage(source: ImageSource.gallery);
+    final pickedImage = await showModalBottomSheet<XFile?>(
+      context: context,
+      builder: (BuildContext context) {
+      return SafeArea(
+        child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+          leading: Icon(Icons.photo_library),
+          title: Text('Galeriden Seç'),
+          onTap: () async {
+            Navigator.pop(context, await ImagePicker().pickImage(source: ImageSource.gallery));
+          },
+          ),
+          ListTile(
+          leading: Icon(Icons.camera_alt),
+          title: Text('Kamerayı Kullan'),
+          onTap: () async {
+            Navigator.pop(context, await ImagePicker().pickImage(source: ImageSource.camera));
+          },
+          ),
+        ],
+        ),
+      );
+      },
+    );
     if (pickedImage != null) {
       setState(() {
-        _selectedImage = File(pickedImage.path);
+      _selectedImage = File(pickedImage.path);
       });
     }
   }

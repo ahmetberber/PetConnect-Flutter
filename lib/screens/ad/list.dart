@@ -2,7 +2,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
-import 'package:petconnectflutter/screens/ad_details_screen.dart';
+import 'package:petconnectflutter/screens/ad/detail.dart';
+import 'package:petconnectflutter/screens/ad/map.dart';
 
 class AdsListScreen extends StatefulWidget {
   const AdsListScreen({super.key});
@@ -20,6 +21,28 @@ class _AdsListScreenState extends State<AdsListScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('İlanlar'),
+        actions: [
+          TextButton.icon(
+            icon: Icon(Icons.map, color: Colors.white),
+            label: Text(
+              'Harita Görünümü',
+              style: TextStyle(color: Colors.white),
+            ),
+            style: TextButton.styleFrom(
+              backgroundColor: Colors.blueAccent,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12.0),
+              ),
+            ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => MapAdsScreen()),
+              );
+            },
+          ),
+          SizedBox(width: 10)
+        ],
       ),
       body: Column(
         children: [
@@ -75,7 +98,7 @@ class _AdsListScreenState extends State<AdsListScreen> {
           ),
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance.collection('ads').orderBy('createdAt', descending: true).snapshots(),
+              stream: FirebaseFirestore.instance.collection('ads').where('is_active', isEqualTo: true).orderBy('createdAt', descending: true).snapshots(),
               builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return Center(child: CircularProgressIndicator());
