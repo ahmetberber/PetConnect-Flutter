@@ -91,7 +91,7 @@ class _ChatScreenState extends State<ChatScreen> {
       'timestamp': DateTime.now().millisecondsSinceEpoch,
     });
 
-    final jsonCredentials = await rootBundle.loadString('assets/bitirme-5d4c2-18d08d91de06.json');
+    final jsonCredentials = await rootBundle.loadString('assets/service-account.json');
     final creds = auth.ServiceAccountCredentials.fromJson(jsonCredentials);
     final client = await auth.clientViaServiceAccount(creds, ['https://www.googleapis.com/auth/cloud-platform']);
     final notificationData = {

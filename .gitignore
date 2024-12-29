@@ -42,5 +42,5 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-assets/bitirme-5d4c2-18d08d91de06.json
+assets/service-account.json
 android/app/google-services.json

@@ -19,7 +19,15 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void _setupLocalNotifications() async {
   const AndroidInitializationSettings initializationSettingsAndroid = AndroidInitializationSettings('ic_launcher_foreground');
-  const InitializationSettings initializationSettings = InitializationSettings(android: initializationSettingsAndroid);
+  const DarwinInitializationSettings initializationSettingsDarwin = DarwinInitializationSettings(
+    requestAlertPermission: true,
+    requestBadgePermission: true,
+    requestSoundPermission: true,
+  );
+  const InitializationSettings initializationSettings = InitializationSettings(
+    android: initializationSettingsAndroid,
+    iOS: initializationSettingsDarwin
+  );
   await flutterLocalNotificationsPlugin.initialize(initializationSettings);
 }
 
@@ -60,6 +68,7 @@ void _showNotification(String? title, String? body) async {
 }
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
   _showNotification(message.notification?.title, message.notification?.body);
 }
 
