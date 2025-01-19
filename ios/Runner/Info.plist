@@ -30,8 +30,14 @@
 	<true/>
 	<key>NSLocationAlwaysUsageDescription</key>
 	<string>Used to locate you on the map</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Used to locate you on the map</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Used to locate you on the map</string>
+	<key>NSLocationUsageDescription</key>
+	<string>Used to locate you on the map</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Used to take pictures of your pet</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UIBackgroundModes</key>

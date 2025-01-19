@@ -308,42 +308,44 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
             ),
           if (_chatActive)
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                children: [
-                  IconButton(
-                    icon: Icon(Icons.image, color: Colors.teal),
-                    onPressed: _pickImages,
-                  ),
-                  Expanded(
-                    child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 15),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[200],
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      child: TextField(
-                        controller: _controller,
-                        decoration: InputDecoration(
-                          hintText: "Mesajınızı yazın...",
-                          border: InputBorder.none,
+            SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.image, color: Colors.teal),
+                      onPressed: _pickImages,
+                    ),
+                    Expanded(
+                      child: Container(
+                        padding: EdgeInsets.symmetric(horizontal: 15),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[200],
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        child: TextField(
+                          controller: _controller,
+                          decoration: InputDecoration(
+                            hintText: "Mesajınızı yazın...",
+                            border: InputBorder.none,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  IconButton(
-                    icon: Icon(Icons.send, color: Colors.teal),
-                    onPressed: () {
-                      if (_selectedImages.isNotEmpty) {
-                        _sendImages();
-                      }
-                      if (_controller.text.isNotEmpty) {
-                        _sendMessage(_controller.text, 'text');
-                      }
-                    },
-                  ),
-                ],
+                    IconButton(
+                      icon: Icon(Icons.send, color: Colors.teal),
+                      onPressed: () {
+                        if (_selectedImages.isNotEmpty) {
+                          _sendImages();
+                        }
+                        if (_controller.text.isNotEmpty) {
+                          _sendMessage(_controller.text, 'text');
+                        }
+                      },
+                    ),
+                  ],
+                ),
               ),
             ),
         ],

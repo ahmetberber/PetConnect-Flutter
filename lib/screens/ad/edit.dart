@@ -132,6 +132,20 @@ class _EditAdScreenState extends State<EditAdScreen> {
       return;
     }
 
+    if (_selectedLocation == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Konum gerekli')),
+      );
+      return;
+    }
+
+    if (_newImages.isEmpty && _existingImages.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('En az bir fotoğraf gerekli')),
+      );
+      return;
+    }
+
     setState(() {
       _isLoading = true;
     });

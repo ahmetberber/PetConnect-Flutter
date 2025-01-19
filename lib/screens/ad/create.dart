@@ -281,6 +281,20 @@ class _CreateAdScreenState extends State<CreateAdScreen> {
       return;
     }
 
+    if (_selectedLocation == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Konum gerekli')),
+      );
+      return;
+    }
+
+    if (_images.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('En az bir fotoğraf gerekli')),
+      );
+      return;
+    }
+
     setState(() {
       _isLoading = true;
     });

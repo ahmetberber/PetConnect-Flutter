@@ -171,32 +171,33 @@ class _AdDetailsScreenState extends State<AdDetailsScreen> {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
             ),
             SizedBox(height: 8),
-            Container(
-              height: 300,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black26,
-                    blurRadius: 10,
-                    offset: Offset(0, 5),
-                  ),
-                ],
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: GoogleMap(
-                  initialCameraPosition: CameraPosition(
-                    target: location,
-                    zoom: 15,
-                  ),
-                  markers: {
-                    Marker(
-                      markerId: MarkerId("ad-location"),
-                      position: location,
-                      
+            SafeArea(
+              child: Container(
+                height: 300,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 10,
+                      offset: Offset(0, 5),
                     ),
-                  },
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: GoogleMap(
+                    initialCameraPosition: CameraPosition(
+                      target: location,
+                      zoom: 15,
+                    ),
+                    markers: {
+                      Marker(
+                        markerId: MarkerId("ad-location"),
+                        position: location,
+                      ),
+                    },
+                  ),
                 ),
               ),
             ),
